@@ -37,6 +37,21 @@ parser.add_argument(
         help="Start date for commit (format yyyy-mm-dd)"
         )
 
+parser.add_argument(
+        '-e',
+        '--end-date',
+        type=str,
+        help="end date for date range (format yyyy-mm-dd)"
+        )
+
+# 22-March-23
+# 22-March-24
+# 22-March-25
+# 22-March-26
+# 22-March-27
+# 22-March-28
+# 22-March-29
+# 22-March-30
 
 def main():
     args = parser.parse_args()
@@ -46,14 +61,17 @@ def main():
     delta = config['delta']
     repo_name = config['repo_name'][0]
     start_date_str = config['start_date']
-
-    days = 10
+    end_date_str = config['end_date']
 
     if start_date_str != None:
         start_date = datetime.strptime(start_date_str, '%y-%m-%d')
     else:
         start_date = datetime.today()
-    number_of_days = 5
+    if end_date_str != None:
+        end_date = datetime.strptime(end_date_str, '%y-%m-%d')
+        number_of_days = (end_date - start_date).days
+    else:
+        number_of_days = 5
 
     date_list = [(start_date + timedelta(days = day)).isoformat() for day in range(number_of_days)]
 
