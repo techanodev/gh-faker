@@ -37,6 +37,17 @@ def commit(repo_name: str, msg: str, date):
     commit_command = ['git', 'commit', date, '-m', msg]
     subprocess.Popen(commit_command, cwd=dir_path).wait()
 
+
+def config(repo_name: str, key: str, value: str):
+    """
+    set config
+    """
+
+    dir_path = _get_repo_path(repo_name)
+    config_command = ['git', 'config', key, value]
+    subprocess.Popen(config_command, cwd=dir_path).wait()
+
+
 def add(repo_name: str, path: str):
     """
     Add file or file list

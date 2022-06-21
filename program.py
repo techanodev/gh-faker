@@ -44,14 +44,20 @@ parser.add_argument(
         help="end date for date range (format yyyy-mm-dd)"
         )
 
-# 22-March-23
-# 22-March-24
-# 22-March-25
-# 22-March-26
-# 22-March-27
-# 22-March-28
-# 22-March-29
-# 22-March-30
+
+parser.add_argument(
+        '--email',
+        type=str,
+        help="Email for commit"
+        )
+
+
+parser.add_argument(
+        '--name',
+        type=str,
+        help="name for commit"
+        )
+
 
 def main():
     args = parser.parse_args()
@@ -63,19 +69,27 @@ def main():
     start_date_str = config['start_date']
     end_date_str = config['end_date']
 
+    email = config['email']
+    name = config['name']
+
+    git.init(repo_name)
+
+    if email != None:
+        git.config(repo_name, 'user.email', email)
+    if name != None:
+        git.config(repo_name, 'user.name', name)
+
     if start_date_str != None:
         start_date = datetime.strptime(start_date_str, '%y-%m-%d')
     else:
         start_date = datetime.today()
     if end_date_str != None:
         end_date = datetime.strptime(end_date_str, '%y-%m-%d')
-        number_of_days = (end_date - start_date).days
     else:
-        number_of_days = 5
+        end_date = datetime.today()
+    number_of_days = (end_date - start_date).days
 
     date_list = [(start_date + timedelta(days = day)).isoformat() for day in range(number_of_days)]
-
-    git.init(repo_name)
 
     for date in date_list:
         i = date_list.index(date)
