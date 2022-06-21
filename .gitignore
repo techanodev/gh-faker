@@ -1,0 +1,3 @@
+./repositories
+./.env
+*.pyc
