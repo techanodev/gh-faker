@@ -27,13 +27,14 @@ def init(repo_name: str):
 
     return repo_name
 
-def commit(repo_name: str, msg: str):
+def commit(repo_name: str, msg: str, date):
     """
     Commit command
     """
 
     dir_path = _get_repo_path(repo_name)
-    commit_command = ['git', 'commit', '-m', msg]
+    date = '--date="%s"' % date
+    commit_command = ['git', 'commit', date, '-m', msg]
     subprocess.Popen(commit_command, cwd=dir_path).wait()
 
 def add(repo_name: str, path: str):
