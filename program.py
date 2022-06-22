@@ -6,14 +6,26 @@ from tqdm import tqdm
 
 from args import parser
 
+import signal
+import sys
+
+def signal_handler(sig, frame):
+    print('You pressed Ctrl+C!')
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+
+
 def init_config():
     email = config['email']
     name = config['name']
 
     if email != None:
         git.config('user.email', email)
+        print("Email: %s" % email)
     if name != None:
         git.config('user.name', name)
+        print("Name: %s" % name)
 
 
 def get_days():
@@ -31,6 +43,7 @@ def get_days():
         end_date = datetime.strptime(end_date_str, '%y-%m-%d')
     else:
         end_date = datetime.today()
+    print("Start date: %s\tEnd Date: %s" % (str(start_date).split(" ")[0], str(end_date).split(" ")[0]))
     number_of_days = (end_date - start_date).days
 
     return [(start_date + timedelta(days = day)).isoformat() for day in range(number_of_days)]
@@ -60,6 +73,10 @@ def main():
     is_random = config['random']
     delta = config['delta']
     repo_name = config['repo_name'][0]
+    
+    print("Repository name: %s" % repo_name)
+    print("Is Random: %s \t Delta: %d" % (is_random, delta))
+    print("commits per day: %d" % commits_per_day)
 
     git = Git(repo_name)
 

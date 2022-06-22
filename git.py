@@ -24,7 +24,7 @@ class Git:
         self.dir_path = 'repositories/%s' % repo_name
 
         if not os.path.isdir(self.dir_path):
-            os.makedirs(dir_path, exist_ok=True)
+            os.makedirs(self.dir_path, exist_ok=True)
         if not os.path.isdir(self.dir_path + '/.git'):
             init_commnad = ['git', 'init']
             self.run_command(init_commnad)
