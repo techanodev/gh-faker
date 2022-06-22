@@ -59,25 +59,12 @@ parser.add_argument(
         )
 
 
-def main():
+def get_days():
     args = parser.parse_args()
     config = vars(args)
-    commits_per_day = config['commits_per_day']
-    is_random = config['random']
-    delta = config['delta']
-    repo_name = config['repo_name'][0]
+
     start_date_str = config['start_date']
     end_date_str = config['end_date']
-
-    email = config['email']
-    name = config['name']
-
-    git = Git(repo_name)
-
-    if email != None:
-        git.config('user.email', email)
-    if name != None:
-        git.config('user.name', name)
 
     if start_date_str != None:
         start_date = datetime.strptime(start_date_str, '%y-%m-%d')
@@ -89,23 +76,46 @@ def main():
         end_date = datetime.today()
     number_of_days = (end_date - start_date).days
 
-    date_list = [(start_date + timedelta(days = day)).isoformat() for day in range(number_of_days)]
+    return [(start_date + timedelta(days = day)).isoformat() for day in range(number_of_days)]
 
-    for date in date_list:
-        i = date_list.index(date)
+def commit_day(git, day, days_list, commits_per_day, delta, is_random):
+    i = days_list.index(day)
 
-        text = ''
-        if is_random:
-            commits_per_day = random.randint(
-                    commits_per_day - delta, commits_per_day + delta
-                    )
+    text = ''
+    if is_random:
+        commits_per_day = random.randint(
+            commits_per_day - delta, commits_per_day + delta
+            )
 
-        file_name = 'file%d.txt' % i
-        for commit_id in range(commits_per_day):
-            text += str(commit_id)
-            git.write_file(file_name, text)
-            git.add('.')
-            git.commit('commit %d for file %d' % (commit_id, i), date)
+    file_name = 'file%d.txt' % i
+    for commit_id in range(commits_per_day):
+        text += str(commit_id)
+        git.write_file(file_name, text)
+        git.add('.')
+        git.commit('commit %d for file %d' % (commit_id, i), day)
+
+def main():
+    args = parser.parse_args()
+    config = vars(args)
+    commits_per_day = config['commits_per_day']
+    is_random = config['random']
+    delta = config['delta']
+    repo_name = config['repo_name'][0]
+
+    email = config['email']
+    name = config['name']
+
+    git = Git(repo_name)
+
+    if email != None:
+        git.config('user.email', email)
+    if name != None:
+        git.config('user.name', name)
+
+    days_list = get_days()
+
+    for day in days_list:
+        commit_day(git, day, days_list, commits_per_day, delta, is_random)
 
 
 if __name__ == "__main__":
