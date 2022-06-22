@@ -16,7 +16,7 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 
-def init_config():
+def init_config(git, config):
     email = config['email']
     name = config['name']
 
@@ -80,6 +80,7 @@ def main():
 
     git = Git(repo_name)
 
+    init_config(git, config)
     days_list = get_days()
 
     pbar = tqdm(days_list)
