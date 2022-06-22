@@ -1,7 +1,7 @@
 import sys
 import argparse
 import random
-import git
+from git import Git
 from datetime import datetime, timedelta
 
 parser = argparse.ArgumentParser(description="", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -72,12 +72,12 @@ def main():
     email = config['email']
     name = config['name']
 
-    git.init(repo_name)
+    git = Git(repo_name)
 
     if email != None:
-        git.config(repo_name, 'user.email', email)
+        git.config('user.email', email)
     if name != None:
-        git.config(repo_name, 'user.name', name)
+        git.config('user.name', name)
 
     if start_date_str != None:
         start_date = datetime.strptime(start_date_str, '%y-%m-%d')
@@ -103,12 +103,10 @@ def main():
         file_name = 'file%d.txt' % i
         for commit_id in range(commits_per_day):
             text += str(commit_id)
-            git.write_file(repo_name, file_name, text)
-            git.add(repo_name, '.')
-            git.commit(repo_name, 'commit %d for file %d' % (commit_id, i), date)
-        print(text)
-        
-        
+            git.write_file(file_name, text)
+            git.add('.')
+            git.commit('commit %d for file %d' % (commit_id, i), date)
+
 
 if __name__ == "__main__":
     main()
