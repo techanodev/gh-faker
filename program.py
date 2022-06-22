@@ -1,62 +1,19 @@
 import sys
-import argparse
 import random
 from git import Git
 from datetime import datetime, timedelta
+from tqdm import tqdm
 
-parser = argparse.ArgumentParser(description="", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+from args import parser
 
-parser.add_argument('repo_name', nargs='+', help='Repository name')
+def init_config():
+    email = config['email']
+    name = config['name']
 
-parser.add_argument(
-        '-c',
-        '--commits-per-day',
-        type=int,
-        default=10,
-        help='Number of commits per day.')
-
-parser.add_argument(
-        '-r',
-        '--random',
-        action="store_true",
-        help='use random number in a range for commits per days'
-)
-
-parser.add_argument(
-        '-d',
-        '--delta',
-        type=int,
-        default=2,
-        help='delta value for range commits per days'
-)
-
-parser.add_argument(
-        '-s',
-        '--start-date',
-        type=str,
-        help="Start date for commit (format yyyy-mm-dd)"
-        )
-
-parser.add_argument(
-        '-e',
-        '--end-date',
-        type=str,
-        help="end date for date range (format yyyy-mm-dd)"
-        )
-
-
-parser.add_argument(
-        '--email',
-        type=str,
-        help="Email for commit"
-        )
-
-
-parser.add_argument(
-        '--name',
-        type=str,
-        help="name for commit"
-        )
+    if email != None:
+        git.config('user.email', email)
+    if name != None:
+        git.config('user.name', name)
 
 
 def get_days():
@@ -78,6 +35,7 @@ def get_days():
 
     return [(start_date + timedelta(days = day)).isoformat() for day in range(number_of_days)]
 
+
 def commit_day(git, day, days_list, commits_per_day, delta, is_random):
     i = days_list.index(day)
 
@@ -87,12 +45,13 @@ def commit_day(git, day, days_list, commits_per_day, delta, is_random):
             commits_per_day - delta, commits_per_day + delta
             )
 
-    file_name = 'file%d.txt' % i
+    file_name = 'file.txt'
     for commit_id in range(commits_per_day):
         text += str(commit_id)
-        git.write_file(file_name, text)
+        git.append_file(file_name, text)
         git.add('.')
         git.commit('commit %d for file %d' % (commit_id, i), day)
+
 
 def main():
     args = parser.parse_args()
@@ -102,19 +61,13 @@ def main():
     delta = config['delta']
     repo_name = config['repo_name'][0]
 
-    email = config['email']
-    name = config['name']
-
     git = Git(repo_name)
-
-    if email != None:
-        git.config('user.email', email)
-    if name != None:
-        git.config('user.name', name)
 
     days_list = get_days()
 
-    for day in days_list:
+    pbar = tqdm(days_list)
+    for day in pbar:
+        pbar.set_description("Processing on %s" % day.split('T')[0])
         commit_day(git, day, days_list, commits_per_day, delta, is_random)
 
 
