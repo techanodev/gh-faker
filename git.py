@@ -1,7 +1,18 @@
 import os
 import subprocess
 
+from contextlib import contextmanager
+import sys, os
+
 class Git:
+    def run_command(self, command):
+        subprocess.Popen(
+                command,
+                cwd=self.dir_path,
+                stdout=subprocess.DEVNULL, 
+                stderr=subprocess.STDOUT
+            ).wait()
+
     def __init__(self, repo_name):
         """
         Open or init a git repository
@@ -13,11 +24,10 @@ class Git:
         self.dir_path = 'repositories/%s' % repo_name
 
         if not os.path.isdir(self.dir_path):
-            os.makedirs(dir_path, exist_ok=True)
+            os.makedirs(self.dir_path, exist_ok=True)
         if not os.path.isdir(self.dir_path + '/.git'):
             init_commnad = ['git', 'init']
-            subprocess.Popen(init_commnad, cwd=dir_path).wait()
-
+            self.run_command(init_commnad)
 
 
     def commit(self, msg: str, date):
@@ -27,7 +37,7 @@ class Git:
 
         date = '--date="%s"' % date
         commit_command = ['git', 'commit', date, '-m', msg]
-        subprocess.Popen(commit_command, cwd=self.dir_path).wait()
+        self.run_command(commit_command)
 
 
     def config(self, key: str, value: str):
@@ -36,7 +46,7 @@ class Git:
         """
 
         config_command = ['git', 'config', key, value]
-        subprocess.Popen(config_command, cwd=self.dir_path).wait()
+        self.run_command(config_command)
 
 
     def add(self, path: str):
@@ -44,10 +54,10 @@ class Git:
         Add file or file list
         """
         add_command = ['git', 'add', path]
-        subprocess.Popen(add_command, cwd=self.dir_path).wait()
+        self.run_command(add_command)
 
 
-    def write_file(self, file_name: str, text: str):
+    def append_file(self, file_name: str, text: str):
         file_path = "%s/%s" % (self.dir_path, file_name)
-        with open(file_path, 'w') as file:
+        with open(file_path, 'a') as file:
             file.write(text)
